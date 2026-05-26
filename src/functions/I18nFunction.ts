@@ -22,12 +22,9 @@ export class I18nFunction implements ProcessorFunction
         // Extract jsonp from <i18n>
         const parser = new XMLParser();
         const doc = parser.parse(xml,);
-        console.log(doc.mjml.i18n);
 
         if (doc.mjml.i18n) {
             this.translations = JSON.parse(doc.mjml.i18n);
-
-            console.log('Loaded translations:', this.translations);
         }
     }
 }

@@ -25,7 +25,6 @@ export function createPreprocessor(allowedFunctions: Record<string, ProcessorFun
                     throw new Error('Unknown function: ' + fnName);
                 }
                 const args = node.arguments.map(evaluate);
-                console.log('Called:', fnName, args);
                 return allowedFunctions[fnName].call(...args);
             }
             case 'ObjectExpression':
@@ -42,7 +41,6 @@ export function createPreprocessor(allowedFunctions: Record<string, ProcessorFun
 
     function evaluateExpression(expression: string): unknown {
         const node = jsep(expression);
-        console.log('p', node);
         return evaluate(node);
     }
 
@@ -52,9 +50,8 @@ export function createPreprocessor(allowedFunctions: Record<string, ProcessorFun
         return xml.replace(/{{(.+?)}}/g, (whole: string, inner: string) => {
             try {
                 return String(evaluateExpression(inner.trim()));
-            } catch (e) {
-                console.log('leave', whole, (e as Error).message);
-                return whole;            // unknown → leave the marker untouched
+            } catch {
+                return whole; // unknown/unsupported -> leave the marker untouched
             }
         });
     }
