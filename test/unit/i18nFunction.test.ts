@@ -42,3 +42,24 @@ describe('I18nFunction', () => {
     expect(fn.call('hello')).toBe('hello');
   });
 });
+
+describe('I18nFunction.preHook robustness (hostile input)', () => {
+  it('does not throw on rootless / non-mjml XML', () => {
+    const fn = new I18nFunction('cs');
+    expect(() => fn.preHook('just text, no root element')).not.toThrow();
+    expect(fn.call('hello')).toBe('hello'); // degrades to no translations
+  });
+
+  it('does not throw when there is no <i18n> block', () => {
+    const fn = new I18nFunction('cs');
+    expect(() => fn.preHook('<mjml><mj-body></mj-body></mjml>')).not.toThrow();
+    expect(fn.call('hello')).toBe('hello');
+  });
+
+  it('does not throw on malformed <i18n> JSON', () => {
+    const fn = new I18nFunction('cs');
+    const bad = '<mjml><i18n type="json">{ not valid json }</i18n><mj-body></mj-body></mjml>';
+    expect(() => fn.preHook(bad)).not.toThrow();
+    expect(fn.call('hello')).toBe('hello');
+  });
+});

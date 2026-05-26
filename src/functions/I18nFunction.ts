@@ -18,13 +18,22 @@ export class I18nFunction implements ProcessorFunction
     }
 
     preHook(xml: string) {
+        let raw: unknown;
+        try {
+            const doc = new XMLParser().parse(xml);
+            raw = doc?.mjml?.i18n;
+        } catch {
+            return; // unparseable XML -> no translations
+        }
 
-        // Extract jsonp from <i18n>
-        const parser = new XMLParser();
-        const doc = parser.parse(xml,);
+        if (typeof raw !== 'string') {
+            return; // no <i18n> block (or unexpected shape) -> no translations
+        }
 
-        if (doc.mjml.i18n) {
-            this.translations = JSON.parse(doc.mjml.i18n);
+        try {
+            this.translations = JSON.parse(raw);
+        } catch {
+            // malformed <i18n> JSON -> degrade to no translations
         }
     }
 }
