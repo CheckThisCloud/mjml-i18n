@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Test / coverage output
+coverage/
+
+# Dev harness artifact (scratch.ts renders here)
+out.html
+
+# Editor
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# Logs
+*.log

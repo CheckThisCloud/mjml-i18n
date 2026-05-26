@@ -1,0 +1,23 @@
+<mjml>
+    <i18n type="json">
+        { "cs": { "hello-world": "Ahoj světe", "foo": { "bar": "baz" } },
+        "en": { "hello-world": "Hello World" } }
+    </i18n>
+
+    <mj-body>
+        <mj-section>
+            <mj-column>
+                <mj-text>
+                    normal: Hello World
+                </mj-text>
+
+                <mj-text>
+                    translated: {{ i18n("hello-world") }}
+                </mj-text>
+                <mj-text>
+                    translated: {{ i18n("foo.bar") }}
+                </mj-text>
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

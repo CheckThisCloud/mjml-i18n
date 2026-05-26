@@ -1,0 +1,26 @@
+{
+  "name": "mjml-i18n",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@jsep-plugin/object": "^1.2.2",
+    "fast-xml-parser": "^5.8.0",
+    "jsep": "^1.4.0",
+    "mjml": "^5.2.2",
+    "mjml-core": "^5.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "tsup": "^8.5.1",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3"
+  }
+}
