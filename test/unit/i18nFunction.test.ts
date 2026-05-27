@@ -63,3 +63,29 @@ describe('I18nFunction.preHook robustness (hostile input)', () => {
     expect(fn.call('hello')).toBe('hello');
   });
 });
+
+describe('I18nFunction hostile locale / translations (threat model)', () => {
+  it('does not leak prototype internals when the locale is a prototype key', () => {
+    const fn = new I18nFunction('constructor');
+    fn.preHook(xml); // 'constructor' is NOT an own locale in the loaded table
+    expect(fn.call('name')).toBe('name'); // must be key fallback, never 'Object'
+  });
+
+  it('falls back to the key for a toString / __proto__ locale', () => {
+    const a = new I18nFunction('toString');
+    a.preHook(xml);
+    expect(a.call('name')).toBe('name'); // never 'toString'
+    const b = new I18nFunction('__proto__');
+    b.preHook(xml);
+    expect(b.call('hello')).toBe('hello');
+  });
+
+  it('ignores a non-object <i18n> payload (null / string) and degrades to no translations', () => {
+    const fn = new I18nFunction('cs');
+    fn.preHook('<mjml><i18n type="json">null</i18n><mj-body></mj-body></mjml>');
+    expect(fn.call('hello')).toBe('hello');
+    const fn2 = new I18nFunction('cs');
+    fn2.preHook('<mjml><i18n type="json">"justastring"</i18n><mj-body></mj-body></mjml>');
+    expect(fn2.call('hello')).toBe('hello');
+  });
+});

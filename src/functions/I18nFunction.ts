@@ -12,8 +12,12 @@ export class I18nFunction implements ProcessorFunction
     };
 
     call(key: string, params: Record<string, unknown> = {}): any {
-        const message = dotWalk(key, this.translations[this.locale]) ?? key;
-
+        // Only use an OWN locale table — never an inherited one — so a hostile locale
+        // like "constructor"/"__proto__"/"toString" can't leak prototype internals.
+        const table = Object.prototype.hasOwnProperty.call(this.translations, this.locale)
+            ? this.translations[this.locale]
+            : undefined;
+        const message = dotWalk(key, table) ?? key;
         return format(message, params);
     }
 
@@ -31,7 +35,10 @@ export class I18nFunction implements ProcessorFunction
         }
 
         try {
-            this.translations = JSON.parse(raw);
+            const parsed = JSON.parse(raw);
+            if (parsed !== null && typeof parsed === 'object') {
+                this.translations = parsed;
+            }
         } catch {
             // malformed <i18n> JSON -> degrade to no translations
         }
