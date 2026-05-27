@@ -9,6 +9,8 @@ Run your `.mjml` templates through one preprocessor that resolves `{{ … }}` ma
 ## Install
 
 ```bash
+yarn add @checkthiscloud/mjml-i18n mjml
+# or
 npm install @checkthiscloud/mjml-i18n mjml
 ```
 
