@@ -39,6 +39,8 @@ describe('integration: scenarios', () => {
   it('switches output by locale for the same template', async () => {
     const en = await render(basicSrc, [preprocessorFor('en')]);
     const cs = await render(basicSrc, [preprocessorFor('cs')]);
+    expect(en.errors ?? []).toHaveLength(0);
+    expect(cs.errors ?? []).toHaveLength(0);
     expect(en.html).toContain('Hello World');
     expect(cs.html).toContain('Ahoj světe');
   });

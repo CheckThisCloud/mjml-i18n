@@ -26,6 +26,7 @@ describe('sandbox: rejected expressions are left verbatim', () => {
     ['spread in args', '{{ get("a", ...b) }}'],
     ['call with no arguments', '{{ get() }}'],
     ['member-expression callee', '{{ get.call("a") }}'],
+    ['multi-line marker (not supported)', '{{ i18n(\n"hello") }}'],
     ['empty marker (with space)', '{{ }}'],
   ])('leaves %s untouched', (_label, input) => {
     expect(pre()(input)).toBe(input);

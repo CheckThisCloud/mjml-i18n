@@ -16,6 +16,8 @@ const token = fc.constantFrom(
 );
 const expr = fc.array(token, { maxLength: 16 }).map((parts) => parts.join(''));
 
+const protoOwnPropsBefore = Object.getOwnPropertyNames(Object.prototype).length;
+
 describe('fuzz: evaluator invariants', () => {
   it('never throws, never pollutes the prototype, and returns a string', () => {
     fc.assert(
@@ -24,7 +26,8 @@ describe('fuzz: evaluator invariants', () => {
         let out: unknown;
         expect(() => { out = pre(input); }).not.toThrow();
         expect(typeof out).toBe('string');
-        expect((Object.prototype as Record<string, unknown>).polluted).toBeUndefined();
+        // Stronger than checking one key name: a pollution of ANY key grows this count.
+        expect(Object.getOwnPropertyNames(Object.prototype).length).toBe(protoOwnPropsBefore);
       }),
       { numRuns: 2000 },
     );
