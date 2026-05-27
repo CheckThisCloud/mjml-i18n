@@ -1,9 +1,17 @@
 {
-  "name": "mjml-i18n",
+  "name": "@checkthiscloud/mjml-i18n",
   "version": "0.0.1",
-  "description": "Variable interpolation + i18n for MJML v5 via a single preprocessor. Experimental (pre-1.0); API may change.",
+  "description": "i18n and variable interpolation for MJML v5 email templates — a single preprocessor with co-located, vue-i18n-style translations. Experimental (pre-1.0); API may change.",
   "author": "EntryLog",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CheckThisCloud/mjml-i18n.git"
+  },
+  "homepage": "https://github.com/CheckThisCloud/mjml-i18n#readme",
+  "bugs": {
+    "url": "https://github.com/CheckThisCloud/mjml-i18n/issues"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -16,6 +24,9 @@
     }
   },
   "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
@@ -25,7 +36,17 @@
     "verify:build": "tsup && node scripts/smoke.mjs && node scripts/smoke.cjs",
     "prepublishOnly": "npm run build"
   },
-  "keywords": [],
+  "keywords": [
+    "mjml",
+    "mjml-v5",
+    "i18n",
+    "internationalization",
+    "translation",
+    "email",
+    "email-templates",
+    "preprocessor",
+    "interpolation"
+  ],
   "dependencies": {
     "@jsep-plugin/object": "^1.2.2",
     "fast-xml-parser": "^5.8.0",

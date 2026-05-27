@@ -1,0 +1,148 @@
+# @checkthiscloud/mjml-i18n
+
+> i18n and variable interpolation for [MJML v5](https://mjml.io) email templates — a single preprocessor with co-located, vue-i18n-style translations.
+
+> ⚠️ **Experimental (pre-1.0).** The API may change between `0.x` releases.
+
+Run your `.mjml` templates through one preprocessor that resolves `{{ … }}` markers — translations *and* variables — on the raw XML **before** MJML parses it. No more compiling templates through a separate template engine just to get translations.
+
+## Install
+
+```bash
+npm install @checkthiscloud/mjml-i18n mjml
+```
+
+`mjml` (and its `mjml-core`) are **peer dependencies** — you bring your own MJML v5; this package only provides the preprocessor. Installing `mjml` pulls in `mjml-core` for you.
+
+```jsonc
+// peer requirements
+"mjml": "^5",
+"mjml-core": "^5"
+```
+
+## Quick start
+
+Co-locate translations in an `<i18n>` block and use `{{ … }}` markers anywhere in the template:
+
+```xml
+<mjml>
+  <i18n type="json">
+    {
+      "en": { "hello": "Hello {name}!", "cta": "Shop now" },
+      "cs": { "hello": "Ahoj {name}!", "cta": "Nakupovat" }
+    }
+  </i18n>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>{{ i18n('hello', { name: get('firstName') }) }}</mj-text>
+        <mj-button href="{{ get('url') }}">{{ i18n('cta') }}</mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+```
+
+Render it:
+
+```ts
+import mjml from 'mjml';
+import { createI18nPreprocessor } from '@checkthiscloud/mjml-i18n';
+
+const preprocessor = createI18nPreprocessor({
+  locale: 'cs',
+  vars: { firstName: 'Ada', url: 'https://example.com' },
+});
+
+const { html, errors } = await mjml(template, { preprocessors: [preprocessor] });
+```
+
+MJML v5's `mjml()` is async — remember to `await` it. The `<i18n>` head component is registered for you by the factory.
+
+## Markers
+
+A marker is `{{ <expression> }}` where the expression is a **function call**. Two functions are built in:
+
+| Marker | Resolves to |
+| --- | --- |
+| `{{ i18n('key') }}` | the translation for `key` in the active locale |
+| `{{ i18n('a.b') }}` | a nested translation key (`a.b`) |
+| `{{ i18n('key', { name: 'Ada' }) }}` | a translation with `{name}` params filled in |
+| `{{ get('path') }}` | a value from `vars` (dot-path supported: `get('user.name')`) |
+| `{{ i18n('hi', { name: get('userName') }) }}` | **nesting** — `get(…)` is evaluated and passed into `i18n(…)` |
+
+Markers work **anywhere** — body text *and* attributes (`href`, `background-color`, …) — because they're resolved before MJML parses the XML.
+
+### Translation params
+
+Translation strings use single-brace placeholders (`{name}`) — ICU-compatible and collision-free with the outer `{{ }}`:
+
+```json
+{ "en": { "greeting": "Hi {name}, you have {count} new messages" } }
+```
+
+```xml
+{{ i18n('greeting', { name: get('firstName'), count: get('msgCount') }) }}
+```
+
+Substitution is plain string replacement (no pluralization / ICU yet). A param with no matching value is left literal (`{name}`).
+
+## Fallbacks & behavior
+
+Nothing this package does throws into your render — unresolved markers degrade gracefully:
+
+| Situation | Result |
+| --- | --- |
+| Missing translation key | the key itself (`i18n('foo.bar')` → `foo.bar`) |
+| Missing variable | `Missing variable: <path>` |
+| Missing translation param | left literal (`{name}`) |
+| Unknown function / unsupported expression | the marker is left **untouched** in the output |
+| Malformed `<i18n>` JSON, or no `<i18n>` block | treated as "no translations" (no crash) |
+
+Only `i18n(…)` / `get(…)` calls, literals, and object arguments are evaluated — operators, member access, arrow functions, etc. are rejected and the marker is left as-is. This keeps expression evaluation a tight, predictable allowlist. Markers must be **single-line**.
+
+## API
+
+### `createI18nPreprocessor({ locale, vars? })`
+
+The convenience factory for the common case. Wires the `get` + `i18n` functions, registers the `<i18n>` component, and returns a `Preprocessor`. `locale` is required; `vars` is optional (defaults to `{}`).
+
+```ts
+const pre = createI18nPreprocessor({ locale: 'en', vars: { name: 'Ada' } });
+await mjml(src, { preprocessors: [pre] });
+```
+
+Construct a **fresh preprocessor per render** (e.g. per request) — each render gets its own translation/variable state, which keeps concurrent renders isolated.
+
+### `createPreprocessor(functions)`
+
+The lower-level building block — pass your own map of functions (each implementing `ProcessorFunction`):
+
+```ts
+import {
+  createPreprocessor,
+  GetFunction,
+  I18nFunction,
+  registerI18nComponent,
+} from '@checkthiscloud/mjml-i18n';
+
+registerI18nComponent(); // needed if your template uses <i18n>
+const pre = createPreprocessor({
+  get: new GetFunction({ name: 'Ada' }),
+  i18n: new I18nFunction('en'),
+});
+```
+
+### `registerI18nComponent()`
+
+Registers the `<i18n>` head component with `mjml-core` (idempotent). `createI18nPreprocessor` calls it for you; call it yourself only when composing with `createPreprocessor` directly.
+
+### Exports
+
+- `createI18nPreprocessor(opts)` · `createPreprocessor(functions)` · `registerI18nComponent()`
+- `GetFunction` · `I18nFunction`
+- types: `Preprocessor`, `ProcessorFunction`
+
+## License
+
+[MIT](./LICENSE) © EntryLog
