@@ -5,7 +5,9 @@ import {ProcessorFunction} from "./functions/ProcessorFunction";
 
 jsep.plugins.register(jsepObject);
 
-export function createPreprocessor(allowedFunctions: Record<string, ProcessorFunction>) {
+export type Preprocessor = (xml: string) => string;
+
+export function createPreprocessor(allowedFunctions: Record<string, ProcessorFunction>): Preprocessor {
 
     function callPreHooks(xml: string) {
         for(const allowedFunc of Object.values(allowedFunctions)) {
