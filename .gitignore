@@ -19,3 +19,6 @@ out.html
 
 # Logs
 *.log
+
+# Blog/social post drafts (local only)
+drafts/
