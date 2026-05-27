@@ -24,6 +24,8 @@ describe('sandbox: rejected expressions are left verbatim', () => {
     ['assignment', '{{ a = 1 }}'],
     ['sequence', '{{ a, b }}'],
     ['spread in args', '{{ get("a", ...b) }}'],
+    ['call with no arguments', '{{ get() }}'],
+    ['member-expression callee', '{{ get.call("a") }}'],
     ['empty marker (with space)', '{{ }}'],
   ])('leaves %s untouched', (_label, input) => {
     expect(pre()(input)).toBe(input);
