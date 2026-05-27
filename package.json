@@ -16,7 +16,9 @@
   "dependencies": {
     "@jsep-plugin/object": "^1.2.2",
     "fast-xml-parser": "^5.8.0",
-    "jsep": "^1.4.0",
+    "jsep": "^1.4.0"
+  },
+  "peerDependencies": {
     "mjml": "^5.2.2",
     "mjml-core": "^5.2.2"
   },
@@ -24,6 +26,8 @@
     "@types/node": "^25.9.1",
     "@vitest/coverage-v8": "^4.1.7",
     "fast-check": "^4.8.0",
+    "mjml": "^5.2.2",
+    "mjml-core": "^5.2.2",
     "tsup": "^8.5.1",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3",
