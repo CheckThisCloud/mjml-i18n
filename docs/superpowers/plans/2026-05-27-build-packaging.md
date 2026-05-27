@@ -332,7 +332,7 @@ SOFTWARE.
 
 - [ ] **Step 3: Update `package.json` top-level + publish fields**
 
-Set these fields (changing `version`, `description`, `license`, `type`, `main`; adding `author`, `module`, `types`, `exports`, `files`, `sideEffects`):
+Set these fields (changing `version`, `description`, `license`, `type`, `main`; adding `author`, `module`, `types`, `exports`, `files`):
 ```json
   "version": "0.0.1",
   "description": "Variable interpolation + i18n for MJML v5 via a single preprocessor. Experimental (pre-1.0); API may change.",
@@ -350,8 +350,9 @@ Set these fields (changing `version`, `description`, `license`, `type`, `main`; 
     }
   },
   "files": ["dist"],
-  "sideEffects": false,
 ```
+
+> **Deviation from spec (code-review finding):** Do NOT add `"sideEffects": false`. The spec proposed it, but `src/createPreprocessor.ts` has a real top-level side effect (`jsep.plugins.register(jsepObject)`). Declaring the package side-effect-free risks a consumer's tree-shaking bundler stripping that registration and silently breaking object-expression parsing. Tree-shaking gains for a library this small are negligible, so we omit the field (package defaults to "has side effects").
 
 - [ ] **Step 4: Add build scripts to `package.json`**
 
@@ -463,6 +464,6 @@ Expected: empty (no `dist/`, no stray files).
 
 ## Self-Review Notes
 
-- **Spec coverage:** dual tsup build → Task 4; `type: module` + exports/main/module/types/files/sideEffects → Task 4; peer+dev deps → Task 2; deps kept (jsep/@jsep-plugin/object/fast-xml-parser) → Task 2; version 0.0.1 + experimental description → Task 4; MIT license + LICENSE file + author → Task 4; public API (createPreprocessor, createI18nPreprocessor, registerI18nComponent, GetFunction, I18nFunction, ProcessorFunction, Preprocessor) → Task 3; `I18nBlock` internal (not exported) → Task 3 (index.ts doesn't export it); idempotent factory registration → Task 3 (`registered` guard); locale required / vars optional → Task 3 (factory signature + test); tsconfig + ambient types → Task 1; artifact smoke verification (both formats) → Task 5. All spec sections map to a task.
+- **Spec coverage:** dual tsup build → Task 4; `type: module` + exports/main/module/types/files → Task 4 (`sideEffects: false` dropped per code-review finding — see Task 4 deviation note); peer+dev deps → Task 2; deps kept (jsep/@jsep-plugin/object/fast-xml-parser) → Task 2; version 0.0.1 + experimental description → Task 4; MIT license + LICENSE file + author → Task 4; public API (createPreprocessor, createI18nPreprocessor, registerI18nComponent, GetFunction, I18nFunction, ProcessorFunction, Preprocessor) → Task 3; `I18nBlock` internal (not exported) → Task 3 (index.ts doesn't export it); idempotent factory registration → Task 3 (`registered` guard); locale required / vars optional → Task 3 (factory signature + test); tsconfig + ambient types → Task 1; artifact smoke verification (both formats) → Task 5. All spec sections map to a task.
 - **Type/signature consistency:** `Preprocessor` defined in `createPreprocessor.ts` (Task 3) and re-exported + used as the factory return type (Task 3); `createI18nPreprocessor({ vars?, locale })` and `registerI18nComponent()` signatures match the spec and the Task 3 test. `export type` used for the two type-only exports (matches the esbuild-isolated-modules constraint noted in the header).
 - **Out of scope (unchanged):** leaf integration, actually running `npm publish`, ICU/messageformat, member-access hardening.
