@@ -143,6 +143,15 @@ Registers the `<i18n>` head component with `mjml-core` (idempotent). `createI18n
 - `GetFunction` · `I18nFunction`
 - types: `Preprocessor`, `ProcessorFunction`
 
+## Roadmap
+
+Ideas under consideration — no promises or dates, but where this is likely headed:
+
+- **External translation files** — load messages from separate per-locale files (e.g. `locales/en.json`) instead of only the inline `<i18n>` block, so larger projects don't have to carry translations inside every template.
+- **ICU message format** — richer params (pluralization, select, number/date formatting) via a pluggable formatter. Today it's plain `{name}` substitution; the formatting layer is already isolated as a swap-in seam, so this can land without changing the marker syntax.
+
+Got a use case or an opinion? [Open an issue](https://github.com/CheckThisCloud/mjml-i18n/issues).
+
 ## License
 
 [MIT](./LICENSE) © EntryLog
