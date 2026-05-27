@@ -14,6 +14,7 @@ Make `mjml-i18n` buildable and publishable (HANDOFF TODO #1 + #2): add a `tsconf
 - **`mjml` + `mjml-core` → peerDependencies + devDependencies.** Removed from `dependencies`. Peer declares the version contract (`^5`) and, critically, forces a *single shared* `mjml-core` instance so `registerComponent` lands on the registry the consumer's `mjml` actually reads (a plain dependency could install a duplicate, breaking `<i18n>` recognition). Dev so tests/scratch/build resolve them locally.
 - **Runtime dependencies kept:** `jsep`, `@jsep-plugin/object`, `fast-xml-parser` (genuinely imported by package code).
 - **Version `0.0.1`** + an "experimental / pre-1.0, API may change" note in `description`. No `-alpha` prerelease tag and no `--tag alpha` publish — the `0.x` version itself signals experimental stability.
+- **License: MIT**, `Copyright (c) 2026 EntryLog` (the most common permissive license for an npm package; replaces the current `ISC`). Ship a `LICENSE` file (npm includes it automatically regardless of the `files` field). `package.json` `author: "EntryLog"`.
 - **Public API = building blocks + a convenience factory.**
 - **`I18nBlock` stays internal** (not exported). `registerI18nComponent()` is the supported registration path; keeping the class unexported keeps the untyped `mjml-core` base out of the public `.d.ts`.
 - **Registration:** the factory registers the `<i18n>` component idempotently; a standalone `registerI18nComponent()` is also exported for building-blocks users.
@@ -52,6 +53,8 @@ Publish/build fields:
 ```jsonc
 "version": "0.0.1",
 "description": "Variable interpolation + i18n for MJML v5 via a single preprocessor. Experimental (pre-1.0); API may change.",
+"author": "EntryLog",
+"license": "MIT",
 "type": "module",
 "main": "./dist/index.cjs",
 "module": "./dist/index.js",
@@ -201,6 +204,7 @@ Wired into `npm run verify:build` (`tsup && node scripts/smoke.mjs && node scrip
 - `src/index.ts` (public entry)
 - `src/types/mjml.d.ts` (ambient declarations)
 - `scripts/smoke.mjs`, `scripts/smoke.cjs`
+- `LICENSE` (MIT, `Copyright (c) 2026 EntryLog`)
 
 **Modify:**
 - `package.json` (deps reclassification + publish/build fields + scripts + version + description)
