@@ -1,0 +1,10 @@
+<mjml>
+  <i18n type="json">{ "en": { "label": "Click me" } }</i18n>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-button href="{{ get('url') }}">{{ i18n('label') }}</mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
