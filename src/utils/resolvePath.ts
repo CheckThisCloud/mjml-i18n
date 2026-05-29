@@ -8,6 +8,15 @@ export interface ResolvedPath {
     value: any;
 }
 
+/**
+ * A path is malformed when it is empty or has any empty segment ("", "a.", ".a",
+ * "a..b", "."). These are template-authoring typos rather than missing data, so
+ * callers can surface them distinctly from a merely-absent key.
+ */
+export function isMalformedPath(str: string): boolean {
+    return str.split('.').some((segment) => segment === '');
+}
+
 function hasOwn(parent: any, key: string): boolean {
     return !BLOCKED.has(key)
         && parent != null

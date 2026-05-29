@@ -110,11 +110,14 @@ Nothing this package does throws into your render — unresolved markers degrade
 | Missing variable | `Missing variable: <path>` |
 | Variable present but `null`, with a default | `get('key', default)` → `default` |
 | Variable present but `null`, no default | `Missing variable: <path>` |
+| Malformed `get` path (empty, or empty segment like `a.` / `a..b`) | `Invalid variable path: '<path>'` |
 | Missing translation param | left literal (`{name}`) |
 | Unknown function / unsupported expression | the marker is left **untouched** in the output |
 | Malformed `<i18n>` JSON, or no `<i18n>` block | treated as "no translations" (no crash) |
 
 The `get('key', default)` default applies **only** when the key exists but its value is `null`/`undefined` (a legitimately-optional field). A genuinely **absent** key — where a path segment doesn't exist on its parent — still returns `Missing variable: <path>` even when a default is supplied, so a mistyped key name stays loud. Falsy-but-present values (`""`, `0`, `false`) are returned as-is and never trigger the default.
+
+A **malformed** path — empty (`get('')`) or containing an empty segment (`get('a.')`, `get('a..b')`) — is a template-authoring typo rather than missing data, so it surfaces distinctly as `Invalid variable path: '<path>'`. A supplied default never masks it.
 
 Only `i18n(…)` / `get(…)` calls, literals, and object arguments are evaluated — operators, member access, arrow functions, etc. are rejected and the marker is left as-is. This keeps expression evaluation a tight, predictable allowlist. Markers must be **single-line**.
 

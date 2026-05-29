@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolvePath } from '../../src/utils/resolvePath';
+import { resolvePath, isMalformedPath } from '../../src/utils/resolvePath';
 
 describe('resolvePath', () => {
   it('reports a present top-level value as existing', () => {
@@ -50,5 +50,19 @@ describe('resolvePath', () => {
 
   it('treats an inherited (non-own) key as not existing', () => {
     expect(resolvePath('toString', {})).toEqual({ exists: false, value: undefined });
+  });
+});
+
+describe('isMalformedPath', () => {
+  it.each(['a', 'a.b', 'a.b.c', 'user.name'])('accepts the well-formed path %s', (key) => {
+    expect(isMalformedPath(key)).toBe(false);
+  });
+
+  it('flags the empty path', () => {
+    expect(isMalformedPath('')).toBe(true);
+  });
+
+  it.each(['a.', '.a', 'a..b', '.', 'a.b.'])('flags the empty-segment path %s', (key) => {
+    expect(isMalformedPath(key)).toBe(true);
   });
 });

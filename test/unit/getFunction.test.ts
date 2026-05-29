@@ -104,13 +104,40 @@ describe('GetFunction', () => {
     });
   });
 
+  describe('with a malformed path (prominent error, distinct from missing)', () => {
+    it('returns a distinct error for an empty path', () => {
+      expect(new GetFunction({}).call('')).toBe("Invalid variable path: ''");
+    });
+
+    it('returns a distinct error for an empty key even when that key exists in vars', () => {
+      expect(new GetFunction({ '': 'present' }).call('')).toBe("Invalid variable path: ''");
+    });
+
+    it.each(['a.', '.a', 'a..b', '.', 'a.b.'])(
+      'returns a distinct error for the empty-segment path %s',
+      (key) => {
+        expect(new GetFunction({ a: { b: 1 } }).call(key)).toBe(`Invalid variable path: '${key}'`);
+      },
+    );
+
+    it('does not let a default rescue a malformed path', () => {
+      expect(new GetFunction({}).call('a.', 'fallback')).toBe("Invalid variable path: 'a.'");
+    });
+
+    it('uses wording distinct from the missing-variable sentinel', () => {
+      const out = new GetFunction({}).call('a..b');
+      expect(out).not.toContain('Missing variable');
+      expect(out).toContain('Invalid variable path');
+    });
+  });
+
   describe('with more than two arguments', () => {
     it('ignores extra arguments when applying the default', () => {
-      expect(new GetFunction({ k: null }).call('k', 'd', 'extra' as any)).toBe('d');
+      expect((new GetFunction({ k: null }).call as any)('k', 'd', 'extra')).toBe('d');
     });
 
     it('ignores extra arguments when returning a real value', () => {
-      expect(new GetFunction({ k: 'real' }).call('k', 'd', 'extra' as any)).toBe('real');
+      expect((new GetFunction({ k: 'real' }).call as any)('k', 'd', 'extra')).toBe('real');
     });
   });
 });
