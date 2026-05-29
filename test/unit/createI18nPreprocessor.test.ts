@@ -6,11 +6,18 @@ const xml = `<mjml>
   <mj-body><mj-text>{{ i18n('hello-world') }} — {{ get('name') }}</mj-text></mj-body>
 </mjml>`;
 
-// The preprocessor does not strip the <i18n> block (mjml-core does that), so its
-// raw JSON still contains every translation value. Assert on the rendered marker
-// region only, never the whole document.
+// When a locale is wired the preprocessor strips the <i18n> block itself (so
+// mjml-core never parses its contents); in passthrough the block is left in place.
+// Assert on the rendered marker region, never the whole document.
 const body = (out: string): string =>
   out.match(/<mj-text>(.*?)<\/mj-text>/s)?.[1] ?? '';
+
+describe('createI18nPreprocessor: <i18n> block stripping', () => {
+  it('strips the <i18n> block when a locale is provided, so its contents never reach mjml', () => {
+    const pre = createI18nPreprocessor({ locale: 'cs' });
+    expect(pre(xml)).not.toContain('<i18n');
+  });
+});
 
 describe('createI18nPreprocessor: locale is optional', () => {
   it('resolves get() when locale is omitted (interpolation does not depend on locale)', () => {

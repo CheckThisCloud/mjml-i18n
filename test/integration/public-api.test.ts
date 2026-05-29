@@ -29,4 +29,18 @@ describe('public API: createI18nPreprocessor', () => {
     expect(html).toContain('Ahoj světe');
     expect(html).toContain('Missing variable: name'); // get with no vars -> fallback
   });
+
+  it('renders a translation containing HTML markup without an mjml error', async () => {
+    const markupTemplate = `<mjml>
+      <i18n type="json">{ "en": { "greeting": "Hello <strong>{name}</strong> & welcome" } }</i18n>
+      <mj-body><mj-section><mj-column>
+        <mj-text>{{ i18n('greeting', { name: get('name') }) }}</mj-text>
+      </mj-column></mj-section></mj-body>
+    </mjml>`;
+    const pre = createI18nPreprocessor({ locale: 'en', vars: { name: 'Ada' } });
+    const { html, errors } = await mjml(markupTemplate, { preprocessors: [pre] });
+    expect(errors ?? []).toHaveLength(0); // no "Element strong doesn't exist"
+    expect(html).toContain('<strong>Ada</strong>'); // markup survived into the output
+    expect(html).not.toContain('<i18n');
+  });
 });

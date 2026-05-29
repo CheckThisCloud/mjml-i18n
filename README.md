@@ -89,6 +89,16 @@ Translation strings use single-brace placeholders (`{name}`) — ICU-compatible 
 
 Substitution is plain string replacement (no pluralization / ICU yet). A param with no matching value is left literal (`{name}`).
 
+### Markup in translations
+
+Translation values may contain HTML — `<strong>`, `<a>`, bare `&` and `<`, and so on:
+
+```json
+{ "en": { "welcome": "Welcome <strong>{name}</strong> &mdash; let's go" } }
+```
+
+No `CDATA` or escaping is needed. The preprocessor reads the `<i18n>` block as raw text and **removes it from the XML before MJML parses the template**, so MJML never tries to interpret the markup as components. The resolved value lands wherever its marker sits (e.g. inside an `<mj-text>`), and MJML renders it as normal inline HTML.
+
 ## Fallbacks & behavior
 
 Nothing this package does throws into your render — unresolved markers degrade gracefully:
