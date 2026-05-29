@@ -41,4 +41,12 @@ describe('sandbox: allowed expressions', () => {
   it('trims whitespace inside the marker', () => {
     expect(pre()('{{    i18n("hello")    }}')).toBe('Hello');
   });
+
+  it('forwards a get default literal for a present-but-null value', () => {
+    expect(pre({ k: null })('{{ get("k", "fallback") }}')).toBe('fallback');
+  });
+
+  it('resolves a nested get(...) as the default', () => {
+    expect(pre({ k: null, other: 'Bob' })('{{ get("k", get("other")) }}')).toBe('Bob');
+  });
 });
