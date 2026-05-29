@@ -1,6 +1,6 @@
 {
   "name": "@checkthiscloud/mjml-i18n",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "i18n and variable interpolation for MJML v5 email templates — a single preprocessor with co-located, vue-i18n-style translations. Experimental (pre-1.0); API may change.",
   "author": "EntryLog",
   "license": "MIT",
