@@ -71,4 +71,46 @@ describe('GetFunction', () => {
       expect(new GetFunction({ a: null }).call('a.b', 'd')).toBe('Missing variable: a.b');
     });
   });
+
+  describe('with a falsy default value (default is not a truthiness/nullish check)', () => {
+    it('applies an empty-string default to a present-but-null value', () => {
+      expect(new GetFunction({ k: null }).call('k', '')).toBe('');
+    });
+
+    it('applies a 0 default to a present-but-null value', () => {
+      expect(new GetFunction({ k: null }).call('k', 0)).toBe(0);
+    });
+
+    it('applies a false default to a present-but-null value', () => {
+      expect(new GetFunction({ k: null }).call('k', false)).toBe(false);
+    });
+
+    it('applies an explicit null default to a present-but-null value', () => {
+      expect(new GetFunction({ k: null }).call('k', null)).toBe(null);
+    });
+  });
+
+  describe('with a default on a nested (dot-notation) path', () => {
+    it('returns the real nested value, ignoring the default', () => {
+      expect(new GetFunction({ a: { b: 'real' } }).call('a.b', 'd')).toBe('real');
+    });
+
+    it('returns a falsy nested value (0) rather than the default', () => {
+      expect(new GetFunction({ a: { b: 0 } }).call('a.b', 'd')).toBe(0);
+    });
+
+    it('applies the default for a present-but-undefined nested value', () => {
+      expect(new GetFunction({ a: { b: undefined } }).call('a.b', 'd')).toBe('d');
+    });
+  });
+
+  describe('with more than two arguments', () => {
+    it('ignores extra arguments when applying the default', () => {
+      expect(new GetFunction({ k: null }).call('k', 'd', 'extra' as any)).toBe('d');
+    });
+
+    it('ignores extra arguments when returning a real value', () => {
+      expect(new GetFunction({ k: 'real' }).call('k', 'd', 'extra' as any)).toBe('real');
+    });
+  });
 });
