@@ -24,7 +24,10 @@ export class I18nFunction implements ProcessorFunction
     preHook(xml: string) {
         let raw: unknown;
         try {
-            const doc = new XMLParser().parse(xml);
+            // stopNodes keeps the <i18n> body as RAW text instead of parsing its
+            // contents as child XML — so translation values may contain markup
+            // (<strong>…</strong>), bare & and < without breaking extraction.
+            const doc = new XMLParser({ stopNodes: ['mjml.i18n'] }).parse(xml);
             raw = doc?.mjml?.i18n;
         } catch {
             return; // unparseable XML -> no translations
@@ -42,5 +45,13 @@ export class I18nFunction implements ProcessorFunction
         } catch {
             // malformed <i18n> JSON -> degrade to no translations
         }
+    }
+
+    transform(xml: string): string {
+        // Remove the <i18n> config block before the XML reaches mjml-core. mjml
+        // would otherwise try to parse any markup inside it as child components
+        // and reject it ("Element strong doesn't exist"). The block is plain JSON,
+        // so </i18n> never appears inside it -> a non-greedy match is safe.
+        return xml.replace(/<i18n\b[^>]*>[\s\S]*?<\/i18n>/gi, '');
     }
 }

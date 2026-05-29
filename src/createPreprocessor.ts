@@ -17,6 +17,15 @@ export function createPreprocessor(allowedFunctions: Record<string, ProcessorFun
         }
     }
 
+    function callTransforms(xml: string): string {
+        for(const allowedFunc of Object.values(allowedFunctions)) {
+            if(typeof allowedFunc.transform === 'function') {
+                xml = allowedFunc.transform(xml);
+            }
+        }
+        return xml;
+    }
+
     function evaluate(node: any): unknown {
         switch (node.type) {
             case 'Literal':
@@ -48,6 +57,10 @@ export function createPreprocessor(allowedFunctions: Record<string, ProcessorFun
 
     return function(xml: string) {
         callPreHooks(xml);
+
+        // Strip config blocks (e.g. <i18n>) before resolving markers, so they never
+        // reach mjml-core and markers inside a stripped block aren't processed.
+        xml = callTransforms(xml);
 
         return xml.replace(/{{(.+?)}}/g, (whole: string, inner: string) => {
             try {

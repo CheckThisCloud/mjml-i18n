@@ -43,6 +43,38 @@ describe('I18nFunction', () => {
   });
 });
 
+describe('I18nFunction.preHook with markup in translation values', () => {
+  const markupXml =
+    '<mjml><i18n type="json">{ "en": { "msg": "Hi <strong>{name}</strong> & welcome" } }</i18n><mj-body></mj-body></mjml>';
+
+  it('extracts a translation whose value contains HTML tags and a bare &', () => {
+    const fn = new I18nFunction('en');
+    fn.preHook(markupXml);
+    expect(fn.call('msg', { name: 'Ada' })).toBe('Hi <strong>Ada</strong> & welcome');
+  });
+});
+
+describe('I18nFunction.transform', () => {
+  it('strips the <i18n> block out of the XML', () => {
+    const fn = new I18nFunction('en');
+    const x = '<mjml><i18n type="json">{"en":{"a":"b"}}</i18n><mj-body>x</mj-body></mjml>';
+    expect(fn.transform(x)).toBe('<mjml><mj-body>x</mj-body></mjml>');
+  });
+
+  it('strips an <i18n> block whose value contains HTML markup', () => {
+    const fn = new I18nFunction('en');
+    const x =
+      '<mjml><i18n type="json">{"en":{"a":"<strong>x</strong>"}}</i18n><mj-body>y</mj-body></mjml>';
+    expect(fn.transform(x)).toBe('<mjml><mj-body>y</mj-body></mjml>');
+  });
+
+  it('leaves XML without an <i18n> block unchanged', () => {
+    const fn = new I18nFunction('en');
+    const x = '<mjml><mj-body>z</mj-body></mjml>';
+    expect(fn.transform(x)).toBe(x);
+  });
+});
+
 describe('I18nFunction.preHook robustness (hostile input)', () => {
   it('does not throw on rootless / non-mjml XML', () => {
     const fn = new I18nFunction('cs');
