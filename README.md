@@ -111,6 +111,7 @@ Translations are part of the template, so their markup is kept. **Values from `v
 
 - Strings inside a list or an object read by `get()` are escaped too, so a value handed on as `i18n()` params carries no raw markup: `{{ i18n('hi', { name: get('name') }) }}` keeps the translation's `<strong>` and escapes the name.
 - Numbers and booleans pass through unchanged.
+- A `Date`, a `URL` or any other non-plain object prints through its own `String()` form, escaped. Only arrays and plain objects are walked.
 - A `get(key, default)` default is template text and is printed as written.
 - A printed value is never parsed again: a value that looks like `{{ get('secret') }}` prints literally.
 
