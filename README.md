@@ -18,8 +18,8 @@ npm install @checkthiscloud/mjml-i18n mjml
 
 ```jsonc
 // peer requirements
-"mjml": "^5",
-"mjml-core": "^5"
+"mjml": "^5.2.2",
+"mjml-core": "^5.2.2"
 ```
 
 ## Quick start
@@ -160,6 +160,7 @@ Nothing this package does throws into your render — unresolved markers degrade
 | Malformed `get` path (empty, or empty segment like `a.` / `a..b`) | `Invalid variable path: '<path>'` |
 | Missing translation param | left literal (`{name}`) |
 | Unknown function / unsupported expression | the marker is left **untouched** in the output |
+| No `locale` (default `onMissingLocale: 'passthrough'`) | `i18n(…)` markers are left **untouched** |
 | Malformed `<i18n>` JSON, or no `<i18n>` block | treated as "no translations" (no crash) |
 | `for` / `if` over a missing path | `Missing variable: <path>` in place of the block |
 | `for` / `if` over a malformed path | `Invalid variable path: '<path>'` in place of the block |
@@ -177,13 +178,26 @@ Only `i18n(…)` / `get(…)` calls, literals, and object arguments are evaluate
 
 ## API
 
-### `createI18nPreprocessor({ locale, vars? })`
+### `createI18nPreprocessor({ locale?, vars?, onMissingLocale?, defaultLocale? })`
 
-The convenience factory for the common case. Wires the `get` + `i18n` functions, registers the `<i18n>` component, and returns a `Preprocessor`. `locale` is required; `vars` is optional (defaults to `{}`).
+The convenience factory for the common case. Wires the `get` + `i18n` functions, registers the `<i18n>` component, and returns a `Preprocessor`. `vars` is optional (defaults to `{}`).
 
 ```ts
 const pre = createI18nPreprocessor({ locale: 'en', vars: { name: 'Ada' } });
 await mjml(src, { preprocessors: [pre] });
+```
+
+`get` is always wired. `i18n` needs a locale, so `locale` is optional and what happens without one is an explicit policy:
+
+| `onMissingLocale` | Without `locale` |
+| --- | --- |
+| `'passthrough'` (default) | `i18n` is not wired: `{{ i18n(…) }}` markers are left untouched in the output — visible, instead of a silently wrong-language email |
+| `'default'` | translate against `defaultLocale`, which is then required (the factory throws without it) |
+
+A provided `locale` always wins over `defaultLocale`.
+
+```ts
+createI18nPreprocessor({ locale: user.locale, onMissingLocale: 'default', defaultLocale: 'en', vars });
 ```
 
 Construct a **fresh preprocessor per render** (e.g. per request) — each render gets its own translation/variable state, which keeps concurrent renders isolated.
