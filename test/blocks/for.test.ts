@@ -193,4 +193,13 @@ describe('blocks: for', () => {
       expect(pre({ xs: [1] })(input)).toBe(input);
     });
   });
+
+  it('prints a Date field of an item as a date, also when handed on as an i18n param', () => {
+    const date = new Date('2026-11-14T00:00:00Z');
+    const out = pre({ items: [{ name: 'Ada', when: date }] })(
+      "{{ for item in items }}{{ get('item.when') }}|{{ i18n('line', { name: get('item.name'), count: get('item.when') }) }}{{ endfor }}",
+    );
+    expect(out).toBe(String(date) + '|Ada: ' + String(date));
+    expect(out).not.toContain('[object Object]');
+  });
 });
